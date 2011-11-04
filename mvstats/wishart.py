@@ -1,3 +1,7 @@
+"""
+Module supporting sampling and pdf evaluation for the Wishart distribution
+"""
+
 import flib
 import numpy as np
 from numpy import pi, inf
@@ -8,7 +12,7 @@ import warnings
 # Wishart---------------------------------------------------
 def rvs(n, tau=None, cov=None):
     """
-    rwishart(n, tau=None, cov=None)
+    rvs(n, tau=None, cov=None)
 
     Return a Wishart random matrix.
 
@@ -30,7 +34,8 @@ def rvs(n, tau=None, cov=None):
         A = flib.expand_triangular(chi_sqs, norms)
 
         flib.dtrsm_wrap(sig, A, side='L', uplo='L', transa='T', alpha=1.)
-        w = np.asmatrix(np.dot(A,A.T))
+#        w = np.asmatrix(np.dot(A,A.T))
+        w = np.dot(A,A.T)
         flib.symmetrize(w)
         return w
     elif cov is not None:
@@ -47,13 +52,14 @@ def rvs(n, tau=None, cov=None):
         A = flib.expand_triangular(chi_sqs, norms)
 
         flib.dtrmm_wrap(sig, A, side='L', uplo='L', transa='N', alpha=1.)
-        w = np.asmatrix(np.dot(A,A.T))
+#        w = np.asmatrix(np.dot(A,A.T))
+        w = np.dot(A,A.T)
         flib.symmetrize(w)
         return w
 
 def expval(n, tau=None, cov=None):
     """
-    wishart_expval(n, tau=None, cov=None)
+    expval(n, tau=None, cov=None)
 
     Expected value of wishart distribution.
     """
@@ -64,17 +70,14 @@ def expval(n, tau=None, cov=None):
     elif cov is not None:
         return n * np.asarray(cov)
 
-def pdf(X, n, tau=None, cov=None):
+def logpdf(X, n, tau=None, cov=None):
     R"""
-    wishart_like(X, n, tau=None, cov=None)
+    logpdf(X, n, tau=None, cov=None)
 
     Wishart log-likelihood. The Wishart distribution is the probability
     distribution of the maximum-likelihood estimator (MLE) of the precision
     matrix of a multivariate normal distribution. If tau=1, the distribution
     is identical to the chi-square distribution with n degrees of freedom.
-
-    For an alternative parameterization based on :math:`C=T{-1}`, see
-    `wishart_cov_like`.
 
     .. math::
         f(X \mid n, T) = {\mid T \mid}^{n/2}{\mid X \mid}^{(n-k-1)/2} \exp\left\{ -\frac{1}{2} Tr(TX) \right\}
@@ -89,8 +92,6 @@ def pdf(X, n, tau=None, cov=None):
       tau : matrix
         Symmetric and positive definite
 
-    .. note::
-      Step method MatrixMetropolis will preserve the symmetry of Wishart variables.
 
     """
     if tau is None and cov is None:
@@ -99,3 +100,17 @@ def pdf(X, n, tau=None, cov=None):
         return flib.blas_wishart(X,n,tau)
     elif cov is not None:
         return flib.blas_wishart_cov(X,n,cov)
+
+def pdf(X, n, tau=None, cov=None):
+    """
+    pdf(X, n, tau=None, cov=None)
+
+    :Parameters:
+      X : matrix
+        Symmetric, positive definite.
+      n : int
+        Degrees of freedom, > 0.
+      tau : matrix
+        Symmetric and positive definite
+    """
+    return np.exp(logpdf(X,n,tau,cov))

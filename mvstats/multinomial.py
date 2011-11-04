@@ -1,3 +1,9 @@
+"""
+Module supporting sampling and pdf evaluation for the Multinomial distribution
+
+"""
+
+
 import flib
 import numpy as np
 from numpy import pi, inf
@@ -35,9 +41,9 @@ def expval(n,p):
     """
     return np.asarray([pr * n for pr in p])
 
-def pdf(x, n, p):
+def logpdf(x, n, p):
     R"""
-    pdf(x, n, p)
+    logpdf(x, n, p)
 
     Multinomial log-likelihood. Generalization of the binomial
     distribution, but instead of each trial resulting in "success" or
@@ -72,3 +78,19 @@ def pdf(x, n, p):
     p = np.atleast_2d(p)
 
     return flib.multinomial(x, n, p)
+
+def pdf(x, n, p):
+    """
+    pdf(x, n, p)
+    :Parameters:
+
+      x : (ns, k) int
+          Random variable indicating the number of time outcome i is
+          observed. :math:`\sum_{i=1}^k x_i=n`, :math:`x_i \ge 0`.
+      n : int
+          Number of trials.
+      p : (k,)
+          Probability of each one of the different outcomes.
+          :math:`\sum_{i=1}^k p_i = 1)`, :math:`p_i \ge 0`.
+    """
+    return np.exp( logpdf(x,n,p) )

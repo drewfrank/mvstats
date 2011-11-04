@@ -1,9 +1,18 @@
+"""
+Module supporting sampling and pdf evaluation for the MV Hypergeometric distribution
+
+"""
+
+
+
+
 import flib
 import numpy as np
 from numpy import pi, inf
 import itertools
 import pdb
 import warnings
+
 
 # Multivariate hypergeometric------------------------------
 def rvs(n, m, size=None):
@@ -44,9 +53,9 @@ def expval(n, m):
     return n * (m / m.sum())
 
 
-def pdf(x, m):
+def logpdf(x, m):
     R"""
-    pdf(x, m)
+    logpdf(x, m)
 
     The multivariate hypergeometric describes the probability of drawing x[i]
     elements of the ith category, when the number of items in each category is
@@ -63,3 +72,15 @@ def pdf(x, m):
       - `m` : [int sequence] Number of items in each categoy.
     """
     return flib.mvhyperg(x, m)
+
+def pdf(x, m):
+    """
+    pdf(x, m)
+
+
+    :Parameters:
+      - `x` : [int sequence] Number of draws from each category, (x < m).
+      - `m` : [int sequence] Number of items in each categoy.
+    """
+
+    return np.exp( logpdf(x,m) )

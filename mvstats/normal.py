@@ -1,3 +1,8 @@
+"""
+Module supporting sampling and pdf evaluation for the MV Normal distribution
+"""
+
+
 import flib
 import numpy as np
 from numpy import pi, inf
@@ -81,15 +86,15 @@ def rvs(mu, tau=None, cov=None, sig=None, size=1):
 
 def expval(mu, tau=None, cov=None, sig=None):
     """
-    mv_normal_expval(mu, tau=None, cov=None, sig=None)
+    expval(mu, tau=None, cov=None, sig=None)
 
     Expected value of multivariate normal distribution.
     """
     return mu
 
-def pdf(x, mu, tau=None, cov=None, sig=None):
+def logpdf(x, mu, tau=None, cov=None, sig=None):
     R"""
-    mv_normal_like(x, mu, tau=None, cov=None, sig=None)
+    logpdf(x, mu, tau=None, cov=None, sig=None)
 
     Multivariate normal log-likelihood
 
@@ -127,3 +132,17 @@ def pdf(x, mu, tau=None, cov=None, sig=None):
             return np.sum([flib.chol_mvnorm(r,mu,sig) for r in x])
         else:
             return flib.chol_mvnorm(x,mu,sig)
+
+def pdf(x,mu,tau=None,cov=None,sig=None):
+    """
+    pdf(x, mu, tau=None, cov=None, sig=None)
+
+    :Parameters:
+      - `x` : (n,k)
+      - `mu` : (k) Location parameter sequence.
+      - `tau` : (k,k) Positive definite precision matrix.
+      - `cov` : (k,k) Positive definite covariance matrix.
+      - `sig` : (k,k) Lower triangular matrix resulting from a Cholesky 
+                decomposition of the covariance matrix.
+    """
+    return np.exp(logpdf(x,mu,tau,cov,sig))
